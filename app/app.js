@@ -34,7 +34,10 @@ app.post("/inputplayers", function (req, res) {
         "insert into Player(playerID, playerName, teamID) values ("
         + req.body.playerID + ", " + "'" + req.body.playerName + "'" + ", " + req.body.teamID + ")",
         function(error, results, fields) {
-            if (error) throw error;
+            if(error.errno==1062) {
+                res.redirect('/'); 
+            }
+            else if (error) throw error;
         }
       );
     connection.query(
