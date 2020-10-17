@@ -7,20 +7,20 @@ const app = express();
 const bodyParser = require('body-parser');
 const connection = require('./database');
 
-//test / for Hello World
-app.get('/', (req, res) => res.send('Hello World!'));
+//loads homepage
+app.get('/', function(req, res) {
+    res.sendFile(__dirname + '/html/home.html');
+});
 
-//going to port/3306 should show query
-app.route('/player/')
-  .get(function(req, res, next) {
+app.post('/player', function(req, res) {
     connection.query(
-      "select * from Player",
-      function(error, results, fields) {
-        if (error) throw error;
-        res.json(results);
-      }
-    );
-  });
+        "select * from Player where Player.teamID = 1",
+        function(error, results, fields) {
+          if (error) throw error;
+          res.json(results);
+        }
+      );
+});
 
 app.set('port', process.env.PORT || 3306);
 app.listen(3306, () => console.log('App listening on port 3306'));
