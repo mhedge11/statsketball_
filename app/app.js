@@ -1,5 +1,5 @@
 //grab database info from env config
-require('dotenv').config()
+require('dotenv').config({path:'./process.env'})
 
 //dependencies for express, body-parser and database
 const express = require('express');
