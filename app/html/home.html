@@ -9,14 +9,14 @@
 
 <!-- form for entering player data -->
 <h1>Enter Player Data</h1>
-<form>
+<form method="post" action="/inputplayers">
   <label for="playerID">Player ID</label><br>
-  <input type="number" id="playerID" name="playerID"><br>
+  <input type="number" name="playerID"><br>
   <label for="playerName">Player Name:</label><br>
-  <input type="text" id="playerName" name="playerName"><br>
+  <input type="text" name="playerName"><br>
   <label for="teamID">Team ID:</label><br>
-  <input type="number" id="teamID" name="teamID"><br><br>
-  <input type="submit">
+  <input type="number" name="teamID"><br><br>
+  <input type="submit" value="Submit">
 </form>
 
 </body>
