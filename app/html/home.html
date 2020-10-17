@@ -2,8 +2,21 @@
 <html>
 <body>
 
-<form method="post" action="/player">
+<!-- button posting to /team for viewing players in teamID=1 -->
+<form method="post" action="/team">
   <input type="submit" value="View your team's players!"><br><br>
+</form>
+
+<!-- form for entering player data -->
+<h1>Enter Player Data</h1>
+<form>
+  <label for="playerID">Player ID</label><br>
+  <input type="number" id="playerID" name="playerID"><br>
+  <label for="playerName">Player Name:</label><br>
+  <input type="text" id="playerName" name="playerName"><br>
+  <label for="teamID">Team ID:</label><br>
+  <input type="number" id="teamID" name="teamID"><br><br>
+  <input type="submit">
 </form>
 
 </body>

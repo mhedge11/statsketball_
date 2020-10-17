@@ -12,7 +12,7 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/html/home.html');
 });
 
-app.post('/player', function(req, res) {
+app.post('/team', function(req, res) {
     connection.query(
         "select * from Player where Player.teamID = 1",
         function(error, results, fields) {
