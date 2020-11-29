@@ -18,21 +18,80 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/html/home.html');
 });
 
-//at /team displays all players on a team
-app.post('/team', function(req, res) {
+app.get('/addplayer', function(req, res) {
+    res.sendFile(__dirname + '/html/addplayer.html');
+});
+
+app.get('/reports', function(req, res) {
+    res.sendFile(__dirname + '/html/reports.html');
+});
+
+
+
+
+
+
+//4x reports
+app.post('/leadingscorersoverall', function(req, res) {
     connection.query(
-        "select * from Player where Player.teamID = 1",
+        "",
         function(error, results, fields) {
             if (error) throw error;
-            res.json(results);
+            res.json(results)
         }
       );
 });
 
+app.post('/leadingscorersteam', function(req, res) {
+    connection.query(
+        "",
+        function(error, results, fields) {
+            if (error) throw error;
+            res.json(results)
+        }
+      );
+});
+
+app.post('/topscoringteams', function(req, res) {
+    connection.query(
+        "",
+        function(error, results, fields) {
+            if (error) throw error;
+            res.json(results)
+        }
+      );
+});
+
+app.post('/fgpercent', function(req, res) {
+    connection.query(
+        "",
+        function(error, results, fields) {
+            if (error) throw error;
+            res.json(results)
+        }
+      );
+});
+
+
+
+
+//at /team displays all players on a team
+app.post('/team', function(req, res) {
+    connection.query(
+        "select playerName from Player, PlayerTeam where Player.playerId = PlayerTeam.playerId and PlayerTeam.teamId = 1",
+        function(error, results, fields) {
+            if (error) throw error;
+            res.json(results)
+        }
+      );
+});
+
+
+//add players (need to add to Player and PlayerTeam tables)
 app.post("/inputplayers", function (req, res) {
     connection.query(
-        "insert into Player(playerID, playerName, teamID) values ("
-        + req.body.playerID + ", " + "'" + req.body.playerName + "'" + ", " + req.body.teamID + ")",
+        "insert into Player(playerId, playerName) values ("
+        + req.body.playerId + ", " + "'" + req.body.playerName + "'" + ")",
         function(error, results, fields) {
             if (error) {
                 if(error.errno==1062) {
@@ -42,13 +101,19 @@ app.post("/inputplayers", function (req, res) {
             }
         }
       );
-    connection.query(
-        "select * from Player where Player.teamID = " + req.body.teamID,
+      connection.query(
+        "insert into PlayerTeam(playerId, teamId) values ("
+        + req.body.playerId + ", " + "'" + req.body.teamId + "'" + ")",
         function(error, results, fields) {
-            if (error) throw error;
-            res.json(results)
+            if (error) {
+                if(error.errno==1062) {
+                    res.redirect('/'); 
+                }
+                else throw error;
+            }
         }
       );
+      res.redirect("/")
 });
 
 

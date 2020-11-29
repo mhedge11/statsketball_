@@ -7,16 +7,12 @@
   <input type="submit" value="View your team's players!"><br><br>
 </form>
 
-<!-- form for entering player data -->
-<h1>Enter Player Data</h1>
-<form method="post" action="/inputplayers">
-  <label for="playerID">Player ID</label><br>
-  <input type="number" name="playerID"><br>
-  <label for="playerName">Player Name:</label><br>
-  <input type="text" name="playerName"><br>
-  <label for="teamID">Team ID:</label><br>
-  <input type="number" name="teamID"><br><br>
-  <input type="submit" value="Submit">
+<form action="/addplayer">
+  <input type="submit" value="Add a player!">
+</form>
+
+<form action="/reports">
+  <input type="submit" value="View reports!">
 </form>
 
 </body>
