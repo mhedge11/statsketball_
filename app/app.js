@@ -11,6 +11,64 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USER, process.env.DB_PASS, {
+    host: process.env.DB_HOST,
+    dialect: 'mysql'
+  });
+
+  try {
+    sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
+
+  const Player = sequelize.define('Player', {
+    // Model attributes are defined here
+    playerId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false
+    },
+    playerName: {
+      type: DataTypes.STRING
+    }
+  }, {
+    tableName: 'Player',
+    timestamps: false
+  });
+  
+  // `sequelize.define` also returns the model
+  console.log(sequelize.models.Player); 
+
+
+  const PlayerTeam = sequelize.define('PlayerTeam', {
+    // Model attributes are defined here
+    playerId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false
+    },
+    teamId: {
+      type: DataTypes.INTEGER
+    },
+    startDate: {
+        type: DataTypes.DATE
+    },
+    endDate: {
+        type: DataTypes.DATE
+    }
+  }, {
+    tableName: 'PlayerTeam',
+    timestamps: false
+  });
+
+
+  Player.belongsTo(PlayerTeam, {
+    targetKey: 'playerId',
+    foreignKey: 'playerId'
+  })
 
 
 //loads homepage
@@ -94,15 +152,31 @@ app.post('/fgpercent', function(req, res) {
 
 //at /team displays all players on a team
 app.post('/team', function(req, res) {
-    connection.query(
-        "select playerName from Player, PlayerTeam where Player.playerId = PlayerTeam.playerId and PlayerTeam.teamId = 1",
-        function(error, results, fields) {
-            if (error) throw error;
-            results.forEach(element => {
-                res.write(element.playerName + "\n")
-            });
-            res.end()
-        }
+    // connection.query(
+    //     "select playerName from Player, PlayerTeam where Player.playerId = PlayerTeam.playerId and PlayerTeam.teamId = 1",
+    //     function(error, results, fields) {
+    //         if (error) throw error;
+    //         results.forEach(element => {
+    //             res.write(element.playerName + "\n")
+    //         });
+    //         res.end()
+    //     }
+    //   );
+    async function myFunction() {
+    return Player.findAll({
+        raw: true,
+        include: [{
+            model: PlayerTeam,
+            where: {
+                teamId: 1
+            }
+        }], 
+    })
+    }
+      myFunction().then(
+        function(value) {value.forEach(element => {
+            res.write(element.playerName + "\n", function(err) { res.end(); })
+        })},
       );
 });
 
