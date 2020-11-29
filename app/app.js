@@ -34,7 +34,7 @@ app.get('/reports', function(req, res) {
 //4x reports
 app.post('/leadingscorersoverall', function(req, res) {
     connection.query(
-        "",
+        "SELECT playerName, SUM(points) as totalPoints, SUM(points) / COUNT(*) as PPG from PlayerGameStats, Player WHERE PlayerGameStats.playerId = Player.playerId GROUP BY PlayerGameStats.playerId ORDER BY PPG DESC LIMIT 10",
         function(error, results, fields) {
             if (error) throw error;
             res.json(results)
@@ -54,7 +54,7 @@ app.post('/leadingscorersteam', function(req, res) {
 
 app.post('/topscoringteams', function(req, res) {
     connection.query(
-        "",
+        "SELECT teamName, SUM(points) as totalPoints, SUM(points) / COUNT(DISTINCT gameId) as PPG FROM PlayerGameStats, Team WHERE PlayerGameStats.teamId = Team.teamId GROUP BY PlayerGameStats.teamId ORDER BY PPG DESC LIMIT 10",
         function(error, results, fields) {
             if (error) throw error;
             res.json(results)
@@ -64,7 +64,7 @@ app.post('/topscoringteams', function(req, res) {
 
 app.post('/fgpercent', function(req, res) {
     connection.query(
-        "",
+        "SELECT playerName, (SUM(2pmade) + SUM(3pmade)) / (SUM(2patt) + SUM(3patt)) AS \"FG\%\" FROM PlayerGameStats, Player WHERE PlayerGameStats.playerId = Player.playerId GROUP BY PlayerGameStats.playerId ORDER BY (SUM(2pmade) + SUM(3pmade)) / (SUM(2patt) + SUM(3patt)) DESC LIMIT 10",
         function(error, results, fields) {
             if (error) throw error;
             res.json(results)
