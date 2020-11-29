@@ -37,14 +37,20 @@ app.post('/leadingscorersoverall', function(req, res) {
         "SELECT playerName, SUM(points) as totalPoints, SUM(points) / COUNT(*) as PPG from PlayerGameStats, Player WHERE PlayerGameStats.playerId = Player.playerId GROUP BY PlayerGameStats.playerId ORDER BY PPG DESC LIMIT 10",
         function(error, results, fields) {
             if (error) throw error;
-            res.json(results)
+            results.forEach(element => {
+                res.write(element.playerName + "\n")
+                res.write("Total points: " + element.totalPoints + "\n")
+                res.write("Points per game: " + element.PPG + "\n")
+                res.write("\n")
+            });
+            res.end()
         }
       );
 });
 
 app.post('/leadingscorersteam', function(req, res) {
     connection.query(
-        "",
+        "SELECT teamId, playerId, points FROM PlayerGameStats",
         function(error, results, fields) {
             if (error) throw error;
             res.json(results)
@@ -57,17 +63,28 @@ app.post('/topscoringteams', function(req, res) {
         "SELECT teamName, SUM(points) as totalPoints, SUM(points) / COUNT(DISTINCT gameId) as PPG FROM PlayerGameStats, Team WHERE PlayerGameStats.teamId = Team.teamId GROUP BY PlayerGameStats.teamId ORDER BY PPG DESC LIMIT 10",
         function(error, results, fields) {
             if (error) throw error;
-            res.json(results)
+            results.forEach(element => {
+                res.write(element.teamName + "\n")
+                res.write("Total points: " + element.totalPoints + "\n")
+                res.write("Points per game: " + element.PPG + "\n")
+                res.write("\n")
+            });
+            res.end()
         }
       );
 });
 
 app.post('/fgpercent', function(req, res) {
     connection.query(
-        "SELECT playerName, (SUM(2pmade) + SUM(3pmade)) / (SUM(2patt) + SUM(3patt)) AS \"FG\%\" FROM PlayerGameStats, Player WHERE PlayerGameStats.playerId = Player.playerId GROUP BY PlayerGameStats.playerId ORDER BY (SUM(2pmade) + SUM(3pmade)) / (SUM(2patt) + SUM(3patt)) DESC LIMIT 10",
+        "SELECT playerName, (SUM(2pmade) + SUM(3pmade)) / (SUM(2patt) + SUM(3patt)) AS fg FROM PlayerGameStats, Player WHERE PlayerGameStats.playerId = Player.playerId GROUP BY PlayerGameStats.playerId ORDER BY fg DESC LIMIT 10",
         function(error, results, fields) {
             if (error) throw error;
-            res.json(results)
+            results.forEach(element => {
+                res.write(element.playerName + "\n")
+                res.write("FG%: " + element.fg + "\n")
+                res.write("\n")
+            });
+            res.end()
         }
       );
 });
@@ -81,7 +98,10 @@ app.post('/team', function(req, res) {
         "select playerName from Player, PlayerTeam where Player.playerId = PlayerTeam.playerId and PlayerTeam.teamId = 1",
         function(error, results, fields) {
             if (error) throw error;
-            res.json(results)
+            results.forEach(element => {
+                res.write(element.playerName + "\n")
+            });
+            res.end()
         }
       );
 });
