@@ -111,7 +111,13 @@ app.post('/leadingscorersteam', function(req, res) {
         "select teamName as Team, playerName as Player, maximumScore as TotalPoints from (SELECT pgs.teamId, pgs.playerId, playerName, Team.teamName, SUM(points) as Score FROM Test.PlayerGameStats as pgs, Test.Player, Test.Team where pgs.playerId = Player.playerID and pgs.teamId = Team.teamId GROUP BY teamId, playerId) teampoints, (SELECT teamId, MAX(Score) as maximumScore FROM (SELECT teamId, playerId, SUM(points) as Score FROM Test.PlayerGameStats as pgs GROUP BY teamId, playerId) s group by teamId) as teamTable where teampoints.teamId = teamTable.teamId and teampoints.Score = maximumScore",
         function(error, results, fields) {
             if (error) throw error;
-            res.json(results)
+            results.forEach(element => {
+                res.write(element.Team + "\n")
+                res.write("Total points: " + element.Player + "\n")
+                res.write("Points per game: " + element.TotalPoints + "\n")
+                res.write("\n")
+            });
+            res.end()
         }
       );
 });
