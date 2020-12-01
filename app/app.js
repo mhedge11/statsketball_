@@ -163,16 +163,6 @@ app.post('/fgpercent', function (req, res) {
 //ORM function
 //at /team displays all players on a team
 app.post('/team', function (req, res) {
-    // connection.query(
-    //     "select playerName from Player, PlayerTeam where Player.playerId = PlayerTeam.playerId and PlayerTeam.teamId = 1",
-    //     function(error, results, fields) {
-    //         if (error) throw error;
-    //         results.forEach(element => {
-    //             res.write(element.playerName + "\n")
-    //         });
-    //         res.end()
-    //     }
-    //   );
     async function myFunction() {
         return Player.findAll({
             raw: true,
@@ -196,30 +186,23 @@ app.post('/team', function (req, res) {
 
 //add players (need to add to Player and PlayerTeam tables)
 app.post("/inputplayers", function (req, res) {
-    connection.query(
-        "insert into Player(playerId, playerName) values ("
-        + req.body.playerId + ", " + "'" + req.body.playerName + "'" + ")",
-        function (error, results, fields) {
-            if (error) {
-                if (error.errno == 1062) {
-                    res.redirect('/');
-                }
-                else throw error;
-            }
-        }
-    );
-    connection.query(
-        "insert into PlayerTeam(playerId, teamId) values ("
-        + req.body.playerId + ", " + "'" + req.body.teamId + "'" + ")",
-        function (error, results, fields) {
-            if (error) {
-                if (error.errno == 1062) {
-                    res.redirect('/');
-                }
-                else throw error;
-            }
-        }
-    );
+    async function inputFunction() {
+        Player.create({ playerId: req.body.playerId, playerName: req.body.playerName });
+    }
+    inputFunction().then(
+        function (value) {
+            console.log("Done")
+        },
+    ).catch()
+
+    async function inputFunction2() {
+        PlayerTeam.create({ playerId: req.body.playerId, teamId: req.body.teamId });
+    }
+    inputFunction2().then(
+        function (value) {
+            console.log("Done")
+        },
+    ).catch()
     res.redirect("/")
 });
 
