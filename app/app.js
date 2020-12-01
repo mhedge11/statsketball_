@@ -52,7 +52,9 @@ const PlayerTeam = sequelize.define('PlayerTeam', {
         allowNull: false
     },
     teamId: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false
     },
     startDate: {
         type: DataTypes.DATE
@@ -69,6 +71,60 @@ const PlayerTeam = sequelize.define('PlayerTeam', {
 Player.belongsTo(PlayerTeam, {
     targetKey: 'playerId',
     foreignKey: 'playerId'
+})
+
+
+
+//create Coach model
+const Coach = sequelize.define('Coach', {
+    // Model attributes are defined here
+    coachId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false
+    },
+    coachName: {
+        type: DataTypes.STRING
+    }
+}, {
+    tableName: 'Coach',
+    timestamps: false
+});
+
+//create CoachTeam model
+const CoachTeam = sequelize.define('CoachTeam', {
+    // Model attributes are defined here
+    coachId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false
+    },
+    teamId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false
+    },
+    startDate: {
+        type: DataTypes.DATE
+    },
+    endDate: {
+        type: DataTypes.DATE
+    },
+    gamesWon: {
+        type: DataTypes.INTEGER
+    },
+    gamesLost: {
+        type: DataTypes.INTEGER
+    }
+}, {
+    tableName: 'CoachTeam',
+    timestamps: false
+});
+
+//create association between Coach and CoachTeam for JOIN
+Coach.belongsTo(CoachTeam, {
+    targetKey: 'coachId',
+    foreignKey: 'coachId'
 })
 //-------------------------------------------------------------------------------
 
@@ -163,7 +219,26 @@ app.post('/fgpercent', function (req, res) {
 //ORM function
 //at /team displays all players on a team
 app.post('/team', function (req, res) {
-    async function myFunction() {
+    async function coachFunction() {
+        return Coach.findAll({
+            raw: true,
+            include: [{
+                model: CoachTeam,
+                where: {
+                    teamId: 1
+                }
+            }],
+        })
+    }
+    coachFunction().then(
+        function (value) {
+            res.write("Coach: \n")
+            value.forEach(element => {
+                res.write(element.coachName + "\n", function (err) { })
+            })
+        },
+    ).catch()
+    async function playerFunction() {
         return Player.findAll({
             raw: true,
             include: [{
@@ -174,13 +249,14 @@ app.post('/team', function (req, res) {
             }],
         })
     }
-    myFunction().then(
+    playerFunction().then(
         function (value) {
+            res.write("\nPlayers: \n")
             value.forEach(element => {
                 res.write(element.playerName + "\n", function (err) { res.end(); })
             })
         },
-    );
+    ).catch()
 });
 
 
