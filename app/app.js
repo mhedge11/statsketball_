@@ -141,14 +141,85 @@ app.get('/addplayer', function (req, res) {
     res.sendFile(__dirname + '/html/addplayer.html');
 });
 
+app.get('/addteam', function (req, res) {
+    res.sendFile(__dirname + '/html/addteam.html');
+});
+
+app.get('/deleteteam', function (req, res) {
+    res.sendFile(__dirname + '/html/deleteteam.html');
+});
+
 app.get('/reports', function (req, res) {
     res.sendFile(__dirname + '/html/reports.html');
+});
+app.get('/indexreports', function (req, res) {
+    res.sendFile(__dirname + '/html/indexreports.html');
 });
 
 //-----------------------------------------------------------------------------------
 
 
+//index reports
+app.post('/anames', function (req, res) {
+    connection.query(
+        "SELECT playerName from Player where playerName LIKE 'A%'",
+        function (error, results, fields) {
+            if (error) throw error;
+            results.forEach(element => {
+                res.write(element.playerName + "\n")
+                res.write("\n")
+            });
+            res.end()
+        }
+    );
+});
 
+app.post('/over35', function (req, res) {
+    connection.query(
+        "SELECT playerName, points from PlayerGameStats, Player WHERE points > 35 AND Player.playerId = PlayerGameStats.playerId",
+        function (error, results, fields) {
+            if (error) throw error;
+            results.forEach(element => {
+                res.write("Name: " + element.playerName + "\n")
+                res.write("Points: " + element.points + "\n")
+                res.write("\n")
+            });
+            res.end()
+        }
+    );
+});
+
+app.post('/tripdub', function (req, res) {
+    connection.query(
+        "SELECT playerName, points, rebounds, assists from PlayerGameStats, Player WHERE points > 10 AND rebounds > 10 AND assists > 10 AND Player.playerId = PlayerGameStats.playerId",
+        function (error, results, fields) {
+            if (error) throw error;
+            results.forEach(element => {
+                res.write("Name: " + element.playerName + "\n")
+                res.write("Points: " + element.points + "\n")
+                res.write("Rebounds: " + element.rebounds + "\n")
+                res.write("Assists: " + element.assists + "\n")
+                res.write("\n")
+            });
+            res.end()
+        }
+    );
+});
+
+app.post('/coachwinpercent', function (req, res) {
+    connection.query(
+        "SELECT Coach.coachName, COALESCE(NULL, (gamesWon/(gamesWon + gamesLost) * 100), 'No games played') AS percentage FROM CoachTeam, Coach WHERE CoachTeam.coachId = Coach.coachId",
+        function (error, results, fields) {
+            if (error) throw error;
+            results.forEach(element => {
+                res.write("Name: " + element.coachName + "\n")
+                res.write("Win %: " + element.percentage + "\n")
+                res.write("\n")
+            });
+            res.end()
+        }
+    );
+});
 
 //4x reports
 app.post('/leadingscorersoverall', function (req, res) {
@@ -281,6 +352,43 @@ app.post("/inputplayers", function (req, res) {
     ).catch()
     res.redirect("/")
 });
+
+
+app.post('/inputteam', function (req, res) {
+    connection.query(
+        "insert into Team(teamID, teamName) values (" + req.body.teamId + ", " + "'" + req.body.teamName + "')",
+        function (error, results, fields) {
+            if (error) throw error;
+        }
+    );
+    res.redirect("/")
+});
+
+app.post('/viewteams', function (req, res) {
+    connection.query(
+        "SELECT * FROM Team",
+        function (error, results, fields) {
+            if (error) throw error;
+            results.forEach(element => {
+                res.write("ID: " + element.teamId + "\n")
+                res.write("Team Name: " + element.teamName + "\n")
+                res.write("\n")
+            });
+            res.end()
+        }
+    );
+});
+
+app.post('/removeteam', function (req, res) {
+    connection.query(
+        "DELETE FROM Team WHERE teamName = '" + req.body.teamName + "'",
+        function (error, results, fields) {
+            if (error) throw error;
+        }
+    );
+    res.redirect("/")
+});
+
 
 
 //port to listen on
