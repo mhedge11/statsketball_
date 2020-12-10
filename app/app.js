@@ -412,7 +412,7 @@ app.post('/viewteams', function (req, res) {
 app.post('/removeteam', function (req, res) {
     connection.execute(
     // connection.query(
-        "DELETE FROM Team WHERE teamName = '" + req.body.teamName + "'",
+        "DELETE FROM Team WHERE teamName = '" + connection.escape(req.body.teamName) + "'",
         function (error, results, fields) {
             if (error) throw error;
         }
