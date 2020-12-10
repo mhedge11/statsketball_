@@ -161,7 +161,8 @@ app.get('/indexreports', function (req, res) {
 
 //index reports
 app.post('/anames', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "SELECT playerName from Player where playerName LIKE 'A%'",
         function (error, results, fields) {
             if (error) throw error;
@@ -175,7 +176,8 @@ app.post('/anames', function (req, res) {
 });
 
 app.post('/over35', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "SELECT playerName, points from PlayerGameStats, Player WHERE points > 35 AND Player.playerId = PlayerGameStats.playerId",
         function (error, results, fields) {
             if (error) throw error;
@@ -190,7 +192,8 @@ app.post('/over35', function (req, res) {
 });
 
 app.post('/tripdub', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "SELECT playerName, points, rebounds, assists from PlayerGameStats, Player WHERE points > 10 AND rebounds > 10 AND assists > 10 AND Player.playerId = PlayerGameStats.playerId",
         function (error, results, fields) {
             if (error) throw error;
@@ -207,7 +210,8 @@ app.post('/tripdub', function (req, res) {
 });
 
 app.post('/coachwinpercent', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "SELECT Coach.coachName, COALESCE(NULL, (gamesWon/(gamesWon + gamesLost) * 100), 'No games played') AS percentage FROM CoachTeam, Coach WHERE CoachTeam.coachId = Coach.coachId",
         function (error, results, fields) {
             if (error) throw error;
@@ -223,7 +227,8 @@ app.post('/coachwinpercent', function (req, res) {
 
 //4x reports
 app.post('/leadingscorersoverall', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "SELECT playerName, SUM(points) as totalPoints, SUM(points) / COUNT(*) as PPG from PlayerGameStats, Player WHERE PlayerGameStats.playerId = Player.playerId GROUP BY PlayerGameStats.playerId ORDER BY PPG DESC LIMIT 10",
         function (error, results, fields) {
             if (error) throw error;
@@ -239,7 +244,8 @@ app.post('/leadingscorersoverall', function (req, res) {
 });
 
 app.post('/leadingscorersteam', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "select teamName as Team, playerName as Player, maximumScore as TotalPoints from (SELECT pgs.teamId, pgs.playerId, playerName, Team.teamName, SUM(points) as Score FROM Test.PlayerGameStats as pgs, Test.Player, Test.Team where pgs.playerId = Player.playerID and pgs.teamId = Team.teamId GROUP BY teamId, playerId) teampoints, (SELECT teamId, MAX(Score) as maximumScore FROM (SELECT teamId, playerId, SUM(points) as Score FROM Test.PlayerGameStats as pgs GROUP BY teamId, playerId) s group by teamId) as teamTable where teampoints.teamId = teamTable.teamId and teampoints.Score = maximumScore",
         function (error, results, fields) {
             if (error) throw error;
@@ -255,7 +261,8 @@ app.post('/leadingscorersteam', function (req, res) {
 });
 
 app.post('/topscoringteams', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "SELECT teamName, SUM(points) as totalPoints, SUM(points) / COUNT(DISTINCT gameId) as PPG FROM PlayerGameStats, Team WHERE PlayerGameStats.teamId = Team.teamId GROUP BY PlayerGameStats.teamId ORDER BY PPG DESC LIMIT 10",
         function (error, results, fields) {
             if (error) throw error;
@@ -271,7 +278,8 @@ app.post('/topscoringteams', function (req, res) {
 });
 
 app.post('/fgpercent', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "SELECT playerName, (SUM(2pmade) + SUM(3pmade)) / (SUM(2patt) + SUM(3patt)) AS fg FROM PlayerGameStats, Player WHERE PlayerGameStats.playerId = Player.playerId GROUP BY PlayerGameStats.playerId ORDER BY fg DESC LIMIT 10",
         function (error, results, fields) {
             if (error) throw error;
@@ -355,17 +363,35 @@ app.post("/inputplayers", function (req, res) {
 
 
 app.post('/inputteam', function (req, res) {
-    connection.query(
-        "insert into Team(teamID, teamName) values (" + req.body.teamId + ", " + "'" + req.body.teamName + "')",
-        function (error, results, fields) {
-            if (error) throw error;
-        }
-    );
-    res.redirect("/")
+    connection.beginTransaction(function(err) {
+        if (err) { throw err; }
+        // connection.query(
+        //     "insert into Team(teamID, teamName) values (" + connection.escape(req.body.teamId) + ", " + "" + connection.escape(req.body.teamName) + ")",
+        connection.execute(
+            "insert into Team(teamID, teamName) values (" + connection.escape(req.body.teamId) + ", " + "" + connection.escape(req.body.teamName) + ")",
+
+            function(err, result) {
+          if (err) { 
+            connection.rollback(function() {
+              throw err;
+            });
+          }
+          connection.commit(function(err) {
+            if (err) { 
+              connection.rollback(function() {
+                throw err;
+              });
+            }
+            console.log('success!');
+          });
+        });
+      });
+      res.redirect("/")
 });
 
 app.post('/viewteams', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "SELECT * FROM Team",
         function (error, results, fields) {
             if (error) throw error;
@@ -380,7 +406,8 @@ app.post('/viewteams', function (req, res) {
 });
 
 app.post('/removeteam', function (req, res) {
-    connection.query(
+    connection.execute(
+    // connection.query(
         "DELETE FROM Team WHERE teamName = '" + req.body.teamName + "'",
         function (error, results, fields) {
             if (error) throw error;

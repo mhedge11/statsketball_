@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 //grab DB info from process.env
 let connection = mysql.createConnection({
