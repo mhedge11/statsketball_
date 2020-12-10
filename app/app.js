@@ -434,7 +434,7 @@ app.post('/editteam', function (req, res) {
         }
     );
     connection.execute(
-        "Update Team set teamName ="+connection.escape(req.body.newName)+"where teamId = @var1",
+        "Update Team set teamName ="+connection.escape(req.body.newName)+" where teamId = @var1",
         function (error, results, fields) {
             if (error) throw error;
         }
