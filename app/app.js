@@ -149,6 +149,10 @@ app.get('/deleteteam', function (req, res) {
     res.sendFile(__dirname + '/html/deleteteam.html');
 });
 
+app.get('/editteamname', function (req, res) {
+    res.sendFile(__dirname + '/html/editteamname.html');
+});
+
 app.get('/reports', function (req, res) {
     res.sendFile(__dirname + '/html/reports.html');
 });
@@ -416,6 +420,27 @@ app.post('/removeteam', function (req, res) {
     res.redirect("/")
 });
 
+app.post('/editteam', function (req, res) {
+    console.log("in editteam")
+    connection.execute(
+        
+    // connection.query(
+        // "Update Team set teamName = " + connection.escape(req.body.teamName) + " where teamName =" + connection.escape(req.body.teamName),
+        // "select teamId into @var1 from Team where teamName =" + connection.escape(req.body.teamName) + "; Update Team set teamName =" +  connection.escape(req.body.newName) + "where teamId = @var1;",
+        // "select teamId into @var1 from Team where teamName ='hi'",
+        "select teamId into @var1 from Team where teamName =" + connection.escape(req.body.teamName),
+        function (error, results, fields) {
+            if (error) throw error;
+        }
+    );
+    connection.execute(
+        "Update Team set teamName ="+connection.escape(req.body.newName)+"where teamId = @var1",
+        function (error, results, fields) {
+            if (error) throw error;
+        }
+    );
+    res.redirect("/")
+});
 
 
 //port to listen on
